@@ -1,162 +1,650 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+#project travel agency
+from datetime import datetime
 
-# C extensions
-*.so
+from datetime import timedelta
+import time
+import mysql.connector as sqltor
+mycon=sqltor.connect(host=&quot;localhost&quot;,user=&quot;root&quot;,password=&quot;sq
+l123&quot;,database=&quot;travel_agency&quot;)
+login_password=&quot;travelpedia&quot;
+login_user_id=&quot;admin1&quot;
+f=open(&quot;intro.txt&quot;)
+print(f.read())
+def check():
+global U
+if admin==True:
+u_id=int(input(&quot;Enter user id&quot;))
+else:
+u_id=U
+return u_id
+#inserting records
+def insert_records_package_details():
+cur=mycon.cursor()
+p_no=int(input(&quot;Enter package number&quot;))
+desti=input(&quot;Enter Destination name&quot;)
+length=int(input(&quot;Enter duration of travel&quot;))
+h_name=input(&quot;enter name of the hotel&quot;)
+price=int(input(&quot;enter rate of room /night&quot;))
+cur.execute(f&#39;insert into package_details
+values({p_no},&quot;{desti}&quot;,{length},&quot;{h_name}&quot;,{price})&#39;)
+print(&quot;Row inserted&quot;)
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+mycon.commit()
+def insert_records_customer_details(u_id):
+while True:
+while True:
+pwd=input(&quot;Enter new Password with more than 8
+characters&quot;)
+if len(pwd)&gt;=8:
+break
+else:
+print(&quot;password less than 8 characters&quot;)
+p=False
+while True:
+password1=input(&quot;Confirm password,else click spacebar
+to enter new password &quot;)
+if pwd==password1:
+print(&quot;account secured with password&quot;)
+p=True
+break
+elif password1==&quot; &quot;:
+break
+else:
+pass
+if p==True:
+break
+name=input(&quot;Enter your name&quot;)
+while True:
+Aadhar_no=int(input(&quot;Enter your 12 digit aadhar number&quot;))
+if len(str(Aadhar_no))!=12:
+print(&quot;Invalid Aadhar number&quot;)
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+else:
+break
+while True:
+phone_no=int(input(&quot;Enter your 10 digit phone number&quot;))
+if len(str(phone_no))!=10:
+print(&quot;Invalid phone number&quot;)
+else:
+break
+cur=mycon.cursor()
+cur.execute(f&#39;insert into customer_details
+values({u_id},&quot;{pwd}&quot;,&quot;{name}&quot;,{Aadhar_no},{phone_no})&#39;)
+print(&quot;Account created&quot;)
+mycon.commit()
+def insert_records_travel_details(u_id):
+cur=mycon.cursor()
+print(&quot;Available packages are&quot;)
+display_packages()
+p_no=int(input(&quot;Enter package number&quot;))
+date_in=input(&quot;Enter check in date in YYYY-MM-DD format &quot;)
+date_in_str=datetime.strptime(date_in,&quot;%Y-%m-%d&quot;)
+cur.execute(f&#39;select duration,price from package_details where
+p_no={p_no}&#39;)
+r=cur.fetchone()
+d=int(r[0])
+date_out=date_in_str+ timedelta(days=d)
+price=int(r[1])
+qty=int(input(&quot;Enter number of people &quot;))
+final_price=qty*d*price
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+cur.execute(f&#39;insert into travel_details
+values({u_id},{p_no},&quot;{date_in}&quot;,&quot;{date_out}&quot;,{qty},{final_price})&#39;)
+print(&quot;Total tour cost = &quot;,final_price,&quot;proceed to payment.&quot;)
+mycon.commit()
+#Calculating Final_price
+def update_final_price():
+cur=mycon.cursor()
+cur.execute(f&#39;update travel_details,package_details set
+final_price=price*duration*no_of_people where
+package_details.p_no=travel_details.p_no&#39;)
+mycon.commit()
+#Updation
+def update_customer_details(u_id):
+cur=mycon.cursor()
+while True:
+print(&quot;_&quot;*100)
+print(&#39;&#39;&#39;
+1.)Password
+2.)Name
+3.)Aadhar Number
+4.)Phone Number
+5.)End
+&#39;&#39;&#39;)
+print(&quot;_&quot;*100)
+print()
+change=int(input(&quot;Enter the field you want to update&quot;))
+print(&quot;_&quot;*156)
+if change==1:
+while True:
+while True:
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+password=input(&quot;Enter new Password with more than
+8 characters&quot;)
+if len(password)&gt;=8:
+break
+else:
+print(&quot;password less than 8 characters&quot;)
+p=False
+while True:
+password1=input(&quot;Confirm password,else click
+spacebar to enter new password &quot;)
+if password==password1:
+cur.execute(f&#39;update customer_details set
+password=&quot;{password}&quot; where user_id={u_id}&#39;)
+print(&quot;password updated&quot;)
+p=True
+break
+elif password1==&quot; &quot;:
+break
+else:
+pass
+if p==True:
+break
+elif change==2:
+name=input(&quot;Enter new name&quot;)
+cur.execute(f&#39;update customer_details set name=&quot;{name}&quot;
+where user_id={u_id}&#39;)
+elif change==3:
+while True:
+Aadhar_no=int(input(&quot;Enter your 12 digit aadhar
+number&quot;))
 
-# Translations
-*.mo
-*.pot
+if len(str(Aadhar_no))!=12:
+print(&quot;Invalid Aadhar number&quot;)
+else:
+break
+cur.execute(f&#39;update customer_details set
+Aadhar_no=&quot;{Aadhar_no}&quot; where user_id={u_id}&#39;)
+elif change==4:
+while True:
+phone_no=int(input(&quot;Enter your 10 digit phone number&quot;))
+if len(str(phone_no))!=10:
+print(&quot;Invalid phone number&quot;)
+else:
+break
+cur.execute(f&#39;update customer_details set
+Phone_no=&quot;{phone_no}&quot; where user_id={u_id}&#39;)
+elif change==5:
+print(&quot;Quitting&quot;)
+break
+else:
+print(&quot;Invalid Input,Enter different number.&quot;)
+mycon.commit()
+#updatation in tables
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+def update_package_details(u_id):
+cur=mycon.cursor()
+while True:
+print(&quot;_&quot;*100)
+print(&#39;&#39;&#39;
+1.)Destination
 
-# Flask stuff:
-instance/
-.webassets-cache
+2.)Duration
+3.)Hotel
+4.)Price
+5.)Exit &#39;&#39;&#39;)
+print(&quot;_&quot;*100)
+change=int(input(&quot;Enter the field you want to update: &quot;))
+if change==1:
+dest=input(&quot;Enter new destination&quot;)
+cur.execute(f&#39;update package_details set
+Destination=&quot;{dest}&quot; where user_id={u_id}&#39;)
+elif change==2:
+dur=int(input(&quot;Enter new duration of travel&quot;))
+cur.execute(f&#39;update package_details set duration={dur}
+where user_id={u_id}&#39;);
+elif change==3:
+h_name=input(&quot;Enter new hotel name&quot;)
+cur.execute(f&#39;update package_details set
+hotel_name=&quot;{h_name}&quot; where user_id={u_id}&#39;);
+elif change==4:
+price=int(input(&quot;Enter new price&quot;))
+cur.execute(f&#39;update package_details set price={price}
+where user_id={u_id}&#39;);
+elif change==5:
+print(&quot;Exit, changes saved&quot;)
+break
+else:
+print(&quot;Enter valid number&quot;)
+mycon.commit()
+def update_travel_details(u_id):
+cur=mycon.cursor()
 
-# Scrapy stuff:
-.scrapy
+while True:
+print(&quot;_&quot;*100)
+print(&#39;&#39;&#39;
+1.)Check in Date
+2.)Number of people
+3.)Exit&#39;&#39;&#39;)
+print(&quot;_&quot;*100)
+change=int(input(&quot;Enter the field you want to update&quot;))
+if change==1:
+p_no=int(input(&quot;Enter package number&quot;))
+date_in=input(&quot;Enter check in date in YYYY-MM-DD format
+&quot;)
+date_in_str=datetime.strptime(date_in,&quot;%Y-%m-%d&quot;)
+cur.execute(f&#39;select duration from package_details where
+p_no={p_no}&#39;)
+r=cur.fetchone()
+d=int(r[0])
+date_out=date_in_str+ timedelta(days=d)
+cur.execute(f&#39;update travel_details set date_in=&quot;{date_in}&quot;
+where user_id={u_id} and p_no={p_no}&#39;)
+cur.execute(f&#39;update travel_details set
+date_out=&quot;{date_out}&quot; where user_id={u_id} and p_no={p_no}&#39;)
+elif change==2:
+p_no=int(input(&quot;Enter package number&quot;))
+num=int(input(&quot;Enter number of people&quot;))
+cur.execute(f&#39;update travel_details set no_of_people={num}
+where user_id={u_id} and p_no={p_no}&#39;)
+elif change==3:
+print(&quot;Exit,changes saved&quot;)
+break
 
-# Sphinx documentation
-docs/_build/
+else:
+print(&quot;Enter different number&quot;)
+mycon.commit()
+# Deletion
+def delete_package():
+p_no=int(input(&quot;Enter package number&quot;))
+cur=mycon.cursor()
+cur.execute(f&#39;select * from package_details where
+P_no={p_no}&#39;)
+d=cur.fecthall()
+r=cur.rowcount
+if r==0:
+print(&quot;Enter valid package number&quot;)
+else:
+cur.execute(f&#39;delete from package_details where
+P_no={p_no}&#39;)
+print(&quot;Row deleted&quot;)
+mycon.commit()
+def delete_travel(u_id):
+cur=mycon.cursor()
+while True:
+p_no=int(input(&#39;Enter package number&#39;))
+cur.execute(f&#39;select * from travel_details where P_no={p_no}
+and user_id={u_id}&#39;)
+dataset=cur.fetchall()
+r=cur.rowcount
+c=input(&quot;Are you sure you want to cancel your booking y/n&quot;)
+if c==&quot;y&quot;:
 
-# PyBuilder
-.pybuilder/
-target/
+if r==0:
+print(&quot;Enter valid package number and user id&quot;)
+else:
+cur.execute(f&#39;delete from travel_details where
+P_no={p_no} and user_id={u_id}&#39;)
+print(&quot;booking cancelled&quot;)
+break
 
-# Jupyter Notebook
-.ipynb_checkpoints
+mycon.commit()
+def delete_customer(u_id):
+cur=mycon.cursor()
+cur.execute(f&#39;select * from customer_details where
+user_id={u_id}&#39;)
+d=cur.fetchall()
+r=cur.rowcount
+if r==0:
+print(&quot;Enter valid user id and package number&quot;)
+else:
+cur.execute(f&#39;delete from customer_details where
+user_id={u_id}&#39;)
+print(&quot;Account Deleted&quot;)
+mycon.commit()
 
-# IPython
-profile_default/
-ipython_config.py
+#Customer login
+def login_customer():
+print(&quot;_&quot;*100)
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
+while True:
+u_id=int(input(&quot;enter your user id&quot;))
+while True:
+pwd=input(&quot;Enter new Password with more than 8
+characters&quot;)
+if len(pwd)&gt;=8:
+break
+else:
+print(&quot;password less than 8 characters&quot;)
+cur=mycon.cursor()
+cur.execute(f&#39;select * from customer_details where
+user_id={u_id}&#39;)
+dataset=cur.fetchall()
+r=cur.rowcount
+if r==0:
+print(&quot;Enter valid user_id&quot;)
+else:
+if dataset[0][1]==pwd:
+print(&quot;Login succesful&quot;)
+return u_id
+break
+else:
+print(&quot;incorrect password&quot;)
+print(&quot;_&quot;*100)
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
+#Admin Login
+def login_admin():
+global admin
 
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
+print(&quot;_&quot;*100)
+while True:
+u_id=input(&quot;enter your admin id&quot;)
+pwd=input(&quot;Enter your password &quot;)
+if u_id==login_user_id and pwd==login_password:
+print(&quot;login successful&quot;)
+admin=True
 
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
-.pdm.toml
-.pdm-python
-.pdm-build/
+break
+else:
+print(&quot;Password /admin id doesnt match&quot;)
+print(&quot;_&quot;*100)
+# Auto generated user id using max(u_id)
+def create_account():
+cur=mycon.cursor()
+cur.execute(f&#39;select max(user_id) from customer_details&#39;)
+dataset=cur.fetchall()
+num=int(dataset[0][0])
+num+=1
+print(&quot;Your user id is&quot;,num,&quot;Please save it for further login&quot;)
+insert_records_customer_details(num)
+#Displaying data using traditional algorithm
+def display_booking_user(u_id):
+cur=mycon.cursor()
+cur.execute(f&#39;select * from travel_details where user_id={u_id}&#39;)
+d=cur.fetchall()
+r=cur.rowcount
+cur.execute(f&#39;select
+customer_details.user_id,name,Aadhar_no,Phone_no,Package_de
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
+tails.P_no,date_in,date_out,no_of_people,final_price from
+customer_details natural join travel_details natural join
+package_details where
+customer_details.user_id=travel_details.user_id and
+package_details.P_no=travel_details.P_no and user_id={u_id}&#39;)
+dataset=cur.fetchall()
+L=[&quot;User_id&quot;,&quot;Name&quot;,&quot;Aadhar_no&quot;,&quot;Phone_no&quot;,&quot;Package_no&quot;,&quot;Date_i
+n&quot;,&quot;date_out&quot;,&quot;no of ppl&quot;,&quot;final price&quot;]
+S=[8,20,13,11,12,10,10,10,7]
+print(&quot;_&quot;*156)
+if r==0:
+print(&quot;No bookings&quot;)
+else:
+for i in range(len(L)):
+print(L[i],(S[i]-len(L[i]))*&quot; &quot;,end=&quot;|&quot;)
+print()
+for i in dataset:
+for j in range(len(i)):
+print(i[j],(S[j]-len(str(i[j])))*&#39; &#39;,end=&quot;|&quot;)
+print()
+print(&quot;_&quot;*100)
+def display_packages():
+print(&quot;Displaying all package details&quot;)
+print(&quot;_&quot;*156)
+cur=mycon.cursor()
+cur.execute(f&#39;select * from package_details&#39;)
+dataset=cur.fetchall()
+L=[&quot;Package no&quot;,&quot;destination&quot;,&quot;duration&quot;,&quot;hotel_name&quot;,&quot;price&quot;]
+S=[11,20,15,25,10]
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
+for i in range(len(L)):
+print(L[i],(S[i]-len(L[i]))*&quot; &quot;,end=&quot;|&quot;)
+print()
+for i in dataset:
+for j in range(len(i)):
+print(i[j],(S[j]-len(str(i[j])))*&#39; &#39;,end=&quot;|&quot;)
+print()
+print(&quot;_&quot;*100)
+def display_bookings_admin():
+print(&quot;_&quot;*100)
+cur=mycon.cursor()
+cur.execute(f&#39;select
+customer_details.user_id,name,Aadhar_no,Phone_no,Package_de
+tails.P_no,date_in,date_out,no_of_people,final_price from
+customer_details natural join travel_details natural join
+package_details where
+customer_details.user_id=travel_details.user_id and
+package_details.P_no=travel_details.P_no &#39;)
+dataset=cur.fetchall()
+L=[&quot;User_id&quot;,&quot;Name&quot;,&quot;Aadhar_no&quot;,&quot;Phone_no&quot;,&quot;Package_no&quot;,&quot;Date_i
+n&quot;,&quot;date_out&quot;,&quot;no of ppl&quot;,&quot;final price&quot;]
+S=[8,20,13,11,12,10,10,10,7]
+r=cur.rowcount
+if r!=0:
+for i in range(len(L)):
+print(L[i],(S[i]-len(L[i]))*&quot; &quot;,end=&quot;|&quot;)
+print()
+for i in dataset:
+for j in range(len(i)):
+print(i[j],(S[j]-len(str(i[j])))*&#39; &#39;,end=&quot;|&quot;)
 
-# SageMath parsed files
-*.sage.py
+print()
+print(&quot;_&quot;*100)
+def display_customer_admin():
+print(&quot;_&quot;*100)
+cur=mycon.cursor()
+cur.execute(f&#39;select user_id,name,Aadhar_no,phone_no from
+customer_details&#39;)
+dataset=cur.fetchall()
+r=cur.rowcount
+L=[&quot;user_id&quot;,&quot;Name&quot;,&quot;Aadhar_no&quot;,&quot;Phone_no&quot;]
+S=[8,20,13,11]
+if r!=0:
+for i in range(len(L)):
+print(L[i],(S[i]-len(L[i]))*&quot; &quot;,end=&quot;|&quot;)
+print()
+for i in dataset:
+for j in range(len(i)):
+print(i[j],(S[j]-len(str(i[j])))*&#39; &#39;,end=&quot;|&quot;)
+print()
+print(&quot;_&quot;*100)
+def display_customer_user():
+print(&quot;_&quot;*100)
+u_id=int(input(&quot;Enter user id&quot;))
+cur=mycon.cursor()
+cur.execute(f&#39;select user_id,name,Aadhar_no,phone_no from
+customer_details where user_id={u_id}&#39;)
+dataset=cur.fetchall()
+r=cur.rowcount
+L=[&quot;user_id&quot;,&quot;Name&quot;,&quot;Aadhar_no&quot;,&quot;Phone_no&quot;]
+S=[8,20,13,11]
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+if r==0:
+print(&quot;Account doesnt exist&quot;)
+else:
+for i in range(len(L)):
+print(L[i],(S[i]-len(L[i]))*&quot; &quot;,end=&quot;|&quot;)
+print()
+for i in dataset:
+for j in range(len(i)):
+print(i[j],(S[j]-len(str(i[j])))*&#39; &#39;,end=&quot;|&quot;)
+print()
+print(&quot;_&quot;*100)
+# Customer Roles like updating their data, making booking and
+deleting their account/booking
+def cust_role():
+global admin
+admin=False
 
-# Spyder project settings
-.spyderproject
-.spyproject
+while True:
+y=input(&quot;Do you already have an account?y/n&quot;)
+if y==&quot;y&quot; or y==&quot;Y&quot;:
+U=login_customer()
+break
+elif y==&#39;N&#39; or y==&#39;n&#39;:
+create_account()
+print(&quot;Your account is ready.Please login to continue
+booking for your tour&quot;)
+U=login_customer()
+break
+else:
+print(&quot;Invalid input&quot;)
 
-# Rope project settings
-.ropeproject
+while True:
+print(&quot;_&quot;*100)
+print(&#39;&#39;&#39;
+1)View your bookings
+2)Book your next tour
+3)Update customer details
+4)View available packages
+5)Update your tour details
+6)Cancel your booking
+7) Delete account
+8)Logout and exit&#39;&#39;&#39;)
+print(&quot;_&quot;*100)
+c=int(input(&quot; Enter your choice: &quot;))
+if c==1:
+display_booking_user(U)
+elif c==2:
+insert_records_travel_details(U)
+elif c==3:
+update_customer_details(U)
+elif c==4:
+display_packages()
+elif c==5:
+update_travel_details(U)
+elif c==6:
+delete_travel(U)
+elif c==7:
+delete_customer(U)
+elif c==8:
+print(&quot;Thank you!logging out&quot;)
 
-# mkdocs documentation
-/site
+break
+else:
+print(&quot;Invalid input&quot;)
+#Admin roles like looking over all customers data and making
+changes to their liking
+def admin_role():
+login_admin()
+global admin
+admin=True
+f=open(&quot;admin_role.txt&quot;)
+L=[]
+for i in range(31):
+data=f.readline()
+L.append(data)
+while True:
+for i in range(12):
+print(L[i],end=&#39;&#39;)
+c=int(input(&quot; Enter your choice:
+&quot;))
+if c==1:
+while True:
+print()
+for i in range(12,21):
+print(L[i],end=&#39;&#39;)
+k=int(input(&quot; Enter your choice:
+&quot;))
+if k==1:
+display_bookings_admin()
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+elif k==2:
+display_packages()
+elif k==3:
+display_customer_admin()
+pass
+elif k==4:
+print(&quot;Returning to main menu.&quot;)
+break
+else:
+print(&quot;Invalid input.&quot;)
+elif c==2:
+while True:
+u_id=int(input(&quot;Enter user id &quot;))
+cur=mycon.cursor()
+cur.execute(f&#39;select * from customer_details where
+user_id={u_id}&#39;)
+dataset=cur.fetchall()
+r=cur.rowcount
+if r==0:
+print(&quot;Enter valid user_id&quot;)
+else:
+break
+insert_records_travel_details(u_id)
+elif c==3:
+while True:
+print()
+print(&quot;*&quot;*100)
+for i in range(21,30):
+print(L[i],end=&#39;&#39;)
 
-# Pyre type checker
-.pyre/
+print(&quot;*&quot;*100)
+k=int(input(&quot; Enter your choice: &quot;))
+while True:
+x=int(input(&quot;Enter user id &quot;))
+cur=mycon.cursor()
+cur.execute(f&#39;select * from customer_details where
+user_id={x}&#39;)
+dataset=cur.fetchall()
+r=cur.rowcount
+if r==0:
+print(&quot;Enter valid user_id&quot;)
+else:
+break
+if k==2:
+create_account(x)
+elif k==1:
+update_customer_details(x)
+elif k==3:
+display_booking_user(x)
+pass
+elif k==4:
+print(&quot;Returning to main menu&quot;)
+break
+else:
+print(&quot;Invalid input&quot;)
+elif c==4:
+while True:
+u_id=int(input(&quot;Enter user id &quot;))
 
-# pytype static type analyzer
-.pytype/
+cur=mycon.cursor()
+cur.execute(f&#39;select * from customer_details where
+user_id={u_id}&#39;)
+dataset=cur.fetchall()
+r=cur.rowcount
+if r==0:
+print(&quot;Enter valid user_id&quot;)
+else:
+break
+update_travel_details(u_id)
+elif c==5:
+while True:
+u_id=int(input(&quot;Enter user id &quot;))
+cur=mycon.cursor()
+cur.execute(f&#39;select * from customer_details where
+user_id={u_id}&#39;)
+dataset=cur.fetchall()
+r=cur.rowcount
+if r==0:
+print(&quot;Enter valid user_id&quot;)
+else:
+break
+delete_customer(u_id)
+elif c==6:
+print(&quot;Thank you!logging out&quot;)
+admin=False
+break
+else:
+print(&quot;Invalid input&quot;)
+Login=False
 
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+#menu
+while True:
+print(&quot;_&quot;*100,&#39;&#39;&#39;
+Select Login/Signup :
+1.)Admin
+2.)Customer
+3.)Exit
+&#39;&#39;&#39; ,&quot;_&quot;*100
+)
+c=int(input(&quot; Enter your choice:&quot;))
+if c==1:
+admin_role()
+elif c==2:
+cust_role()
+elif c==3:
+print(&quot;Thank you for visiting travelopedia!&quot;)
+break
+else:
+print(&quot;Invalid choice input ,enter your choice again.&quot;)
